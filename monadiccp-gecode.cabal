@@ -1,0 +1,36 @@
+Name:			monadiccp-gecode
+Version:		0.1
+Description:		Runtime Gecode solver backend for the Monadic Constraint Programming Framework
+License:		BSD3
+License-file:		LICENSE
+Author:			Tom Schrijvers, Pieter Wuille
+Maintainer:		jrt@informatik.uni-kiel.de
+Build-Type:		Simple
+Category:		control
+Synopsis:		Constraint Programming
+Homepage:		http://users.ugent.be/~tschrijv/MCP/
+Bug-Reports:		https://github.com/JTiko/monadiccp-gecode/issues
+Cabal-Version:		>= 1.6
+Extra-Source-Files:	examples/*.hs lib/*.cpp lib/*.h
+Data-Files:		README.md
+
+Flag Debug
+    Description:	Generate debug output
+    Default:		False
+
+library
+    Include-Dirs:	lib
+    Build-Depends:	base >= 2, base < 5, containers, mtl, monadiccp >= 0.7.6
+    C-Sources:		lib/gecodeglue.cpp
+    Extra-Libraries:	gecodesupport gecodeset gecodeint gecodekernel gecodesearch
+    Exposed-Modules:    Control.CP.FD.GecodeExample
+                        Control.CP.FD.Gecode.Runtime
+                        Control.CP.FD.Gecode.RuntimeSearch
+                        Control.CP.FD.Gecode.Interface
+    Frameworks:		gecode
+
+    if flag(Debug)
+        CPP-Options:	-DDEBUG
+        CC-Options:	"-ggdb3" "-Wall"
+    else
+        CC-Options:	"-g0" "-DNDEBUG" "-Wall"
