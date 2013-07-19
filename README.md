@@ -1,7 +1,8 @@
 monadiccp-gecode
 ================
 
-Runtime Gecode Solver Backend for the Monadic Constraint Programming Framework
+Gecode extension for the Monadic Constraint Programming Framework
+containing a code generator and a runtime solver backend for the C++ based constraint library Gecode
 
 This package requires a working Gecode 3.1.0 installation.
 A Gecode 3.1.0 source package can be downloaded from http://www.gecode.org/download/gecode-3.1.0.tar.gz.
