@@ -34,6 +34,8 @@ library
                         Control.CP.FD.Gecode.Runtime
                         Control.CP.FD.Gecode.RuntimeSearch
                         Control.CP.FD.Gecode.Interface
+                        Control.CP.FD.Gecode.Common
+                        Control.CP.FD.Gecode.CodegenSolver
     Frameworks:		gecode
 
     if flag(Debug)

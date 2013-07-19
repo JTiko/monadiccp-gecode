@@ -31,6 +31,9 @@ import Control.CP.FD.Gecode.RuntimeSearch
 
 import Control.Monad.Cont
 
+codegenOptionset :: (CodegenGecodeOptions -> CodegenGecodeOptions) -> Tree (FDInstance (GecodeWrappedSolver CodegenGecodeSolver)) ()
+codegenOptionset f = label ((liftFD $ liftGC $ Control.CP.FD.Gecode.CodegenSolver.setOptions f) >> return true)
+
 setSearchMinimize :: Tree (FDInstance (GecodeWrappedSolver SearchGecodeSolver)) ()
 setSearchMinimize = do
   term <- label $ 
