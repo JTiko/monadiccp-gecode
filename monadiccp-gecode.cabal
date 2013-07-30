@@ -1,5 +1,5 @@
 Name:			monadiccp-gecode
-Version:		0.1
+Version:		0.1.1
 Description:		Gecode extension for the Monadic Constraint Programming Framework (code generator and runtime solver backend)
 License:		BSD3
 License-file:		LICENSE

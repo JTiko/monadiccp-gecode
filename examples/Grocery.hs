@@ -9,8 +9,6 @@
 
 import Control.CP.FD.GecodeExample
 
-import Data.Expr.Sugar hiding (loopall, (@=), sorted)
-
 model :: ExampleModel ()
 model _ = exists $ \col -> do
   [a,b,c,d] <- colList col 4

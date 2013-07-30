@@ -529,6 +529,19 @@ forceDecompCol str info =
         Just (GCTVar var) -> return var
         x -> error $ "unable to decompose col ("++(show x)++"): "++str++"?"
 
+-- workaround for collections which contain constant values and variables:
+-- for each constant value a new variable is introduced which is bound to the value
+decompInt :: (GecodeSolver s, Constraint s ~ GecodeConstraint s) => GecodeIntSpec s -> (GecodeWrappedSolver s) (GecodeIntVar s)
+decompInt (GITVar v)     = return v
+decompInt (GITConst val) = do
+  x <- newvar
+  add $ GCIntVal x val
+  return x
+decompInt (GITLinear l)  = do
+  x <- newvar
+  add $ GCLinear (l-(termToLinear x)) GOEqual
+  return x
+
 newtype GecodeWrappedSolver s a = GecodeWrappedSolver (s a)
 newtype GecodeWrappedLabel s = GecodeWrappedLabel (Label s)
 
@@ -575,7 +588,8 @@ instance (GecodeSolver s, GecodeConstraint s ~ Constraint s) => FDSolver (Gecode
   fdIntSpec_term   x = (GISVar, return $ GITVar x)
   fdBoolSpec_term  x = (GBSVar, return $ GBTVar x)
   fdColSpec_list lst = (GCSVar, do
-    let vir = map (\(GITVar v) -> v) lst
+--    let vir = map (\(GITVar v) -> v) lst
+    vir <- mapM decompInt lst
     gcv <- newCol_list vir
     return $ GCTVar gcv)
   fdColSpec_size len = (GCSVar, do
