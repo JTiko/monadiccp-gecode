@@ -14,7 +14,8 @@ module Control.CP.FD.GecodeExample (
   example_min_main_single_gecode,
   example_min_main_single_expr_gecode,
   example_min_main_coll_expr_gecode,
-  module Control.CP.FD.Example 
+  setSearchMinimize,
+  module Control.CP.FD.Example
 ) where
 
 import System.Environment (getArgs)
