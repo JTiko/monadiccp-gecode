@@ -26,6 +26,7 @@ Flag Debug
     Default:		False
 
 library
+    Hs-Source-Dirs:     src
     Include-Dirs:	lib
     Build-Depends:	base >= 2, base < 5, containers, mtl, monadiccp >= 0.7.6
     C-Sources:		lib/gecodeglue.cpp

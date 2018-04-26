@@ -33,7 +33,7 @@ newtype RuntimeGecodeState = RuntimeGecodeState {
 }
 
 newtype RuntimeGecodeSolver a = RuntimeGecodeSolver { rgsStateT :: StateT RuntimeGecodeState IO a }
-  deriving (Monad, MonadState RuntimeGecodeState, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadState RuntimeGecodeState, MonadIO)
 
 newState :: IO RuntimeGecodeState
 newState = do

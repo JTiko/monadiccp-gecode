@@ -44,7 +44,7 @@ setOptions f = do
   put $ s { options = f $ options s }
 
 newtype SearchGecodeSolver a = SearchGecodeSolver { sgsStateT :: StateT SearchGecodeState IO a }
-  deriving (Monad, MonadState SearchGecodeState, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadState SearchGecodeState, MonadIO)
 
 newState :: IO SearchGecodeState
 newState = do

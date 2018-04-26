@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Control.CP.FD.Gecode.CodegenSolver (
   generateGecode,
@@ -142,7 +143,7 @@ newColParam = do
   return r
 
 newtype CodegenGecodeSolver a = CodegenGecodeSolver { cgsState :: State CodegenGecodeState a }
-  deriving (Monad, MonadState CodegenGecodeState)
+  deriving (Functor, Applicative, Monad, MonadState CodegenGecodeState)
 
 instance Solver CodegenGecodeSolver where
   type Constraint CodegenGecodeSolver = GecodeConstraint CodegenGecodeSolver

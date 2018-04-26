@@ -28,6 +28,7 @@ import Data.Map (Map)
 import Data.Maybe (fromJust,isJust)
 import qualified Data.Set as Set
 import Data.Set(Set)
+import Control.Monad (liftM,ap)
 
 import Control.Mixin.Mixin
 
@@ -545,9 +546,16 @@ decompInt (GITLinear l)  = do
 newtype GecodeWrappedSolver s a = GecodeWrappedSolver (s a)
 newtype GecodeWrappedLabel s = GecodeWrappedLabel (Label s)
 
+instance (GecodeSolver s, Constraint s ~ GecodeConstraint s) => Functor (GecodeWrappedSolver s) where
+  fmap = liftM
+
+instance (GecodeSolver s, Constraint s ~ GecodeConstraint s) => Applicative (GecodeWrappedSolver s) where
+  pure = GecodeWrappedSolver . return
+  (<*>) = ap
+
 instance (GecodeSolver s, Constraint s ~ GecodeConstraint s) => Monad (GecodeWrappedSolver s) where
   {-# INLINE (>>=) #-}
-  return = GecodeWrappedSolver . return
+  return = pure
   (GecodeWrappedSolver m) >>= f  = GecodeWrappedSolver (m >>= (\x -> case f x of GecodeWrappedSolver r -> r))
 
 instance (GecodeSolver s, Constraint s ~ GecodeConstraint s) => Solver (GecodeWrappedSolver s) where

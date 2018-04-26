@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Control.CP.FD.GecodeExample (
   example_main_gecode,

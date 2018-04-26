@@ -1,0 +1,18 @@
+resolver: lts-11.6
+
+packages:
+- .
+- location:
+    git: https://github.com/jwaldmann/monadiccp
+    commit: 3b2d181a25737d729e399a868c6cc02e0a606006
+  extra-dep: true
+
+system-ghc: true
+
+compiler-check: newer-minor
+
+extra-include-dirs:
+  - /opt/gecode/gecode-6.0.0/include
+
+extra-lib-dirs:
+  - /opt/gecode/gecode-6.0.0/lib
