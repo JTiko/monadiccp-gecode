@@ -23,7 +23,7 @@ protected:
   vector<BoolVar> boolVars;
   vector<IntVar> intVars;
   vector<IntVarArgs> colVars;
-  IntConLevel icl;
+  IntPropLevel ipl;
   int refcount;
   int minimizeVar;
 #ifndef NDEBUG
@@ -80,7 +80,7 @@ private:
   }
 
 public:
-  HaskellModel() : boolVars(), intVars(), colVars(), icl(ICL_DEF), refcount(0), minimizeVar(-1)
+  HaskellModel() : boolVars(), intVars(), colVars(), ipl(IPL_DEF), refcount(0), minimizeVar(-1)
 #ifndef NDEBUG
   , level(0), origNum(++nOrigModels), num(++nModels) 
 #endif
@@ -95,7 +95,7 @@ public:
     identify(); cerr << "delmodel\n";
 #endif
   }
-  HaskellModel(bool share, HaskellModel &model) : Space(share,model), boolVars(model.boolVars.size()), intVars(model.intVars.size()), icl(model.icl), refcount(0), minimizeVar(model.minimizeVar)
+  HaskellModel(HaskellModel &model) : Space(model), boolVars(model.boolVars.size()), intVars(model.intVars.size()), ipl(model.ipl), refcount(0), minimizeVar(model.minimizeVar)
 #ifndef NDEBUG
   , level(model.level+1), origNum(model.origNum), num(++nModels)
 #endif
@@ -105,25 +105,25 @@ public:
     identify(); cerr << "newmodel from [" << model.origNum << ":" << model.num << "]\n";
 #endif
     for (int i=0; i<(int)model.boolVars.size(); i++) {
-      boolVars.at(i).update(*this, share, model.boolVars.at(i));
+      boolVars.at(i).update(*this, model.boolVars.at(i));
     }
     for (int i=0; i<(int)model.intVars.size(); i++) {
-      intVars.at(i).update(*this, share, model.intVars.at(i));
+      intVars.at(i).update(*this, model.intVars.at(i));
     }
     for (int i=0; i<(int)model.colVars.size(); i++) {
       IntVarArgs &col=model.colVars.at(i);
       IntVarArgs ncol=IntVarArgs(col.size());
       for (int j=0; j<(int)(col.size()); j++) {
-        ncol[j].update(*this,share,col[j]);
+        ncol[j].update(*this,col[j]);
       }
       colVars.push_back(ncol);
     }
   }
-  virtual Space *copy(bool share) {
+  virtual Space *copy() {
 #ifndef NDEBUG
     identify(); cerr << "making copy\n";
 #endif
-    return new HaskellModel(share, *this);
+    return new HaskellModel(*this);
   }
 
 #ifndef NDEBUG
@@ -271,7 +271,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intvalue v" << var << " = " << val << "\n";
 #endif
-    rel(*this,v,IRT_EQ,val,icl);
+    rel(*this,v,IRT_EQ,val,ipl);
   }
 
   void postIntSame(int var1, int var2) {
@@ -280,14 +280,14 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intsame v" << var1 << " = v" << var2 << "\n";
 #endif
-    rel(*this,v1,IRT_EQ,v2,icl);
+    rel(*this,v1,IRT_EQ,v2,ipl);
   }
 
   void postBoolSame(int var1, int var2) {
 #ifndef NDEBUG
     identify(); cerr << "intsame v" << var1 << " = v" << var2 << "\n";
 #endif
-    rel(*this,getBoolVar(var1),IRT_EQ,getBoolVar(var2),icl);
+    rel(*this,getBoolVar(var1),IRT_EQ,getBoolVar(var2),ipl);
   }
 
   void postIntDiff(int var1, int var2) {
@@ -296,7 +296,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intdiff v" << var1 << " != v" << var2 << "\n";
 #endif
-    rel(*this,v1,IRT_NQ,v2,icl);
+    rel(*this,v1,IRT_NQ,v2,ipl);
   }
   
   void postIntRel(int var1, goperator_t op, int var2) {
@@ -305,7 +305,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intrel v" << var1 << " " << (op==GOPERATOR_OEQUAL ? "==" : (op==GOPERATOR_OLESS ? "<" : "!=")) << " v" << var2 << "\n";
 #endif
-    rel(*this,v1,mapGoperator(op),v2,icl);
+    rel(*this,v1,mapGoperator(op),v2,ipl);
   }
   
   void postIntRelCf(int v1, goperator_t op, int var2) {
@@ -313,7 +313,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intrelcf " << v1 << " " << (op==GOPERATOR_OEQUAL ? "==" : (op==GOPERATOR_OLESS ? "<" : "!=")) << " v" << var2 << "\n";
 #endif
-    rel(*this,v2,mapGoperator(op,true),v1,icl);
+    rel(*this,v2,mapGoperator(op,true),v1,ipl);
   }
 
   void postIntRelCs(int var1, goperator_t op, int v2) {
@@ -321,7 +321,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intrelcs v" << var1 << " " << (op==GOPERATOR_OEQUAL ? "==" : (op==GOPERATOR_OLESS ? "<" : "!=")) << " " << v2 << "\n";
 #endif
-    rel(*this,v1,mapGoperator(op),v2,icl);
+    rel(*this,v1,mapGoperator(op),v2,ipl);
   }
 
   void postIntMult(int var1, int var2, int varr) {
@@ -331,7 +331,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intmult v" << var1 << " * v" << var2 << " = v" << varr << "\n";
 #endif
-    mult(*this,v1,v2,vr,icl);
+    mult(*this,v1,v2,vr,ipl);
   }
 
   void postIntDiv(int var1, int var2, int varr) {
@@ -341,7 +341,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intdiv v" << var1 << " / v" << var2 << " = v" << varr << "\n";
 #endif
-    div(*this,v1,v2,vr,icl);
+    div(*this,v1,v2,vr,ipl);
   }
 
   void postIntMod(int var1, int var2, int varr) {
@@ -351,7 +351,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intmod v" << var1 << " mod v" << var2 << " = v" << varr << "\n";
 #endif
-    mod(*this,v1,v2,vr,icl);
+    mod(*this,v1,v2,vr,ipl);
   }
 
   void postIntAbs(int var, int varr) {
@@ -360,7 +360,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intabs abs(v" << var << ") = v" << varr << "\n";
 #endif
-    abs(*this,v,vr,icl);
+    abs(*this,v,vr,ipl);
   }
 
   void postIntDom(int var, int low, int high) {
@@ -368,7 +368,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intdom v" << var << " = [" << low << "," << high << "]\n";
 #endif
-    dom(*this,v,low,high,icl);
+    dom(*this,v,low,high,ipl);
   }
 
   void postIntLinear(int num, int *vars, int *coef, goperator_t op, int val) {
@@ -381,7 +381,7 @@ public:
     IntArgs dbg(num,vars);
     identify(); cerr << "intlinear num=" << num << " vars=" << dbg << " coefs=" << vls << " op=" << (op==GOPERATOR_OEQUAL ? "==" : (op==GOPERATOR_OLESS ? "<" : (op==GOPERATOR_OLESSEQUAL ? "<=" : "!="))) << " cte=" << val << "\n";
 #endif
-    linear(*this,vls,vrs,mapGoperator(op),val,icl);
+    linear(*this,vls,vrs,mapGoperator(op),val,ipl);
   }
 
   void postIntLinearReif(int num, int *vars, int *coef, goperator_t op, int val, int reif) {
@@ -393,7 +393,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intlinear num=" << num << "\n";
 #endif
-    linear(*this,vls,vrs,mapGoperator(op),val,getBoolVar(reif),icl);
+    linear(*this,vls,vrs,mapGoperator(op),val,getBoolVar(reif),ipl);
   }
 
   void postIntAlldiff(int num, int *vars,int dom) {
@@ -404,7 +404,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intalldiff num=" << num << "\n";
 #endif
-    distinct(*this,vrs,dom ? ICL_DOM : icl);
+    distinct(*this,vrs,dom ? IPL_DOM : ipl);
   }
 
   void postColAlldiff(int var, int dom) {
@@ -412,7 +412,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colalldiff col=" << var << "\n";
 #endif
-    distinct(*this,vars,dom ? ICL_DOM : icl);
+    distinct(*this,vars,dom ? IPL_DOM : ipl);
   }
 
   void postColSorted(int var, goperator_t op) {
@@ -420,7 +420,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colsorted col=" << var << " op=" << op << "\n";
 #endif
-    rel(*this,vars,mapGoperator(op),icl);
+    rel(*this,vars,mapGoperator(op),ipl);
   }
 
   void postColSum(int col,int var) {
@@ -429,7 +429,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colsum col=" << col << " sumvar=" << var << "\n";
 #endif
-    linear(*this,vars,IRT_EQ,sum,icl);
+    linear(*this,vars,IRT_EQ,sum,ipl);
   }
 
   void postColSumC(int col,int val) {
@@ -437,7 +437,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colsum col=" << col << " sumval=" << val << "\n";
 #endif
-    linear(*this,vars,IRT_EQ,val,icl);
+    linear(*this,vars,IRT_EQ,val,ipl);
   }
 
   void postIntSorted(int num, int *vars, goperator_t op) {
@@ -448,7 +448,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intsorted num=" << num << "\n";
 #endif
-    rel(*this,vrs,mapGoperator(op),icl);
+    rel(*this,vrs,mapGoperator(op),ipl);
   }
 
   void postIntBranching(int num, int *vars) {
@@ -459,7 +459,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intbranch num=" << num << "\n";
 #endif
-    branch(*this,vrs, INT_VAR_SIZE_MIN, INT_VAL_SPLIT_MIN);
+    branch(*this,vrs, INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MIN());
   }
 
   void postBoolBranching(int num, int *vars) {
@@ -470,7 +470,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intbranch num=" << num << "\n";
 #endif
-    branch(*this,vrs, INT_VAR_SIZE_MIN, INT_VAL_SPLIT_MIN);
+    branch(*this,vrs, INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MIN());
   }
   
   void postColCount(int col,int isValConst,int val,goperator_t op,int isCountConst,int count) {
@@ -519,14 +519,14 @@ public:
         vrs[p++]=col[k];
       }
     }
-    branch(*this,vrs,INT_VAR_SIZE_MIN, INT_VAL_SPLIT_MIN);
+    branch(*this,vrs,INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MIN());
   }
 
   void postBoolValue(int var, int val) {
 #ifndef NDEBUG
     identify(); cerr << "boolval var="<<var<<" val="<<val<<"\n";
 #endif
-    rel(*this,getBoolVar(var),IRT_EQ,val,icl);
+    rel(*this,getBoolVar(var),IRT_EQ,val,ipl);
   }
 
   int postColEqual(int c1, int c2) {
@@ -538,7 +538,7 @@ public:
     int len=col1.size();
     if (len != (int)(col2.size())) return 0;
     for (int i=0; i<len; i++) {
-      rel(*this,col1[i],IRT_EQ,col2[i],icl);
+      rel(*this,col1[i],IRT_EQ,col2[i],ipl);
     }
     return 1;
   }
@@ -555,10 +555,10 @@ public:
     int lenr=colr.size();
     if (lenr != len1+len2) return 0;
     for (int i=0; i<len1; i++) {
-      rel(*this,col1[i],IRT_EQ,colr[i],icl);
+      rel(*this,col1[i],IRT_EQ,colr[i],ipl);
     }
     for (int i=0; i<len2; i++) {
-      rel(*this,col2[i],IRT_EQ,colr[i+len1],icl);
+      rel(*this,col2[i],IRT_EQ,colr[i+len1],ipl);
     }
     return 1;
   }
@@ -575,7 +575,7 @@ public:
     if (l>0) l=0;
     if (lenr != l) return 0;
     for (int i=0; i<l; i++) {
-      rel(*this,col[i+p],IRT_EQ,colr[i],icl);
+      rel(*this,col[i+p],IRT_EQ,colr[i],ipl);
     }
     return 1;
   }
@@ -584,7 +584,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colat col=v"<<c<<" pos=v"<<p<<" res=v"<<i<<"\n";
 #endif
-    element(*this,getColVar(c),getIntVar(p),getIntVar(i),icl);
+    element(*this,getColVar(c),getIntVar(p),getIntVar(i),ipl);
   }
 
   void postColAtList(int n, int *l, int p, int i) {
@@ -592,14 +592,14 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colat col=[...] pos=v"<<p<<" res=v"<<i<<"\n";
 #endif
-    element(*this,args,getIntVar(p),getIntVar(i),icl);
+    element(*this,args,getIntVar(p),getIntVar(i),ipl);
   }
 
   void postColAtConst(int c, int p, int v) {
 #ifndef NDEBUG
     identify(); cerr << "colat col=v"<<c<<" pos=v"<<p<<" res="<<v<<"\n";
 #endif
-    element(*this,getColVar(c),getIntVar(p),v,icl);
+    element(*this,getColVar(c),getIntVar(p),v,ipl);
   }
 
   void postColAtListConst(int n, int *l, int p, int v) {
@@ -607,13 +607,13 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "colat col=[...] pos=v"<<p<<" res="<<v<<"\n";
 #endif
-    element(*this,args,getIntVar(p),v,icl);
+    element(*this,args,getIntVar(p),v,ipl);
   }
 
   void postDom(int i,int c) {
     IntVar iv = getIntVar(i);
     IntVarArgs iva = getColVar(c);
-    count(*this,iva,iv,IRT_GR,0,icl);
+    count(*this,iva,iv,IRT_GR,0,ipl);
   }
 
   void postDom(int i, int n, const int *c, int r) {
@@ -621,10 +621,10 @@ public:
     IntArgs ia(n,c);
     IntSet is(ia);
     if (r<0) {
-      dom(*this,iv,is,icl);
+      dom(*this,iv,is,ipl);
     } else {
       BoolVar rv = getBoolVar(r);
-      dom(*this,iv,is,rv,icl);
+      dom(*this,iv,is,rv,ipl);
     }
   }
 
@@ -632,35 +632,35 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "channel bool=v"<<b<<" int=v"<<i<<"\n";
 #endif
-    channel(*this,getBoolVar(b),getIntVar(i),icl);
+    channel(*this,getBoolVar(b),getIntVar(i),ipl);
   }
 
   void postBoolAnd(int a, int b, int r) {
 #ifndef NDEBUG
     identify(); cerr << "and a=v"<<a<<" b=v"<<b<<" r=v"<<r<<"\n";
 #endif
-    rel(*this,getBoolVar(a),BOT_AND,getBoolVar(b),getBoolVar(r),icl);
+    rel(*this,getBoolVar(a),BOT_AND,getBoolVar(b),getBoolVar(r),ipl);
   }
 
   void postBoolOr(int a, int b, int r) {
 #ifndef NDEBUG
     identify(); cerr << "or a=v"<<a<<" b=v"<<b<<" r=v"<<r<<"\n";
 #endif
-    rel(*this,getBoolVar(a),BOT_OR,getBoolVar(b),getBoolVar(r),icl);
+    rel(*this,getBoolVar(a),BOT_OR,getBoolVar(b),getBoolVar(r),ipl);
   }
 
   void postBoolEquiv(int a, int b, int r) {
 #ifndef NDEBUG
     identify(); cerr << "boolequiv a=v"<<a<<" b=v"<<b<<" r=v"<<r<<"\n";
 #endif
-    rel(*this,getBoolVar(a),BOT_EQV,getBoolVar(b),getBoolVar(r),icl);
+    rel(*this,getBoolVar(a),BOT_EQV,getBoolVar(b),getBoolVar(r),ipl);
   }
 
   void postBoolNot(int a, int r) {
 #ifndef NDEBUG
     identify(); cerr << "not a=v"<<a<<" r=v"<<r<<"\n";
 #endif
-    rel(*this,getBoolVar(a),IRT_NQ,getBoolVar(r),icl);
+    rel(*this,getBoolVar(a),IRT_NQ,getBoolVar(r),ipl);
   }
 
   void postBoolAll(int num, int *vars, int r) {
@@ -736,7 +736,7 @@ extern "C" HaskellModel *gecode_model_copy(HaskellModel *model) {
   if (state==SS_FAILED) {
     return NULL;
   } else {
-    return (HaskellModel*)(model->clone(true));
+    return (HaskellModel*)(model->clone());
   }
 }
 extern "C" HaskellModel *gecode_model_copy_reentrant(HaskellModel *model) {
@@ -744,7 +744,7 @@ extern "C" HaskellModel *gecode_model_copy_reentrant(HaskellModel *model) {
   if (state==SS_FAILED) {
     return NULL;
   } else {
-    return (HaskellModel*)(model->clone(false));
+    return (HaskellModel*)(model->clone());
   }
 }
 extern "C" void gecode_model_fail(HaskellModel *model) { model->message("fail"); model->fail(); }
