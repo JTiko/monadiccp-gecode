@@ -40,4 +40,5 @@ install:
 
 script:
 # Build the package, its tests, and its docs and run the tests
+- export LD_LIBRARY_PATH=/opt/gecode/gecode-6.0.0/lib
 - stack --no-terminal test --haddock --no-haddock-deps
