@@ -11,8 +11,3 @@ system-ghc: true
 
 compiler-check: newer-minor
 
-extra-include-dirs:
-  - /opt/gecode/gecode-6.0.0/include
-
-extra-lib-dirs:
-  - /opt/gecode/gecode-6.0.0/lib

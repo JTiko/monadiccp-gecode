@@ -470,7 +470,7 @@ public:
 #ifndef NDEBUG
     identify(); cerr << "intbranch num=" << num << "\n";
 #endif
-    branch(*this,vrs, INT_VAR_SIZE_MIN(), INT_VAL_SPLIT_MIN());
+    branch(*this,vrs, BOOL_VAR_NONE(), BOOL_VAL_MIN());
   }
   
   void postColCount(int col,int isValConst,int val,goperator_t op,int isCountConst,int count) {

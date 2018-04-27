@@ -1,7 +1,10 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 
 import Control.CP.FD.GecodeExample
+
+import System.Environment
 
 noattack i j qi qj = do
   qi        @/=  qj
@@ -18,5 +21,7 @@ model n = exists $ \p -> do
       noattack i j (p!i) (p!j)
   return p
 
-main = example_sat_main_single_expr_gecode model
+main = getArgs >>= \ case
+  [] -> withArgs ["gecode_run", "16"] $ example_sat_main_single_expr_gecode model
+  _  -> example_sat_main_single_expr_gecode model
 
