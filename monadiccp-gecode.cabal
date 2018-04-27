@@ -41,6 +41,6 @@ library
 
     if flag(Debug)
         CPP-Options:	-DDEBUG
-        CC-Options:	"-ggdb3" "-Wall"
+        CC-Options:	"-ggdb3" "-Wall" "-std=c++11"
     else
-        CC-Options:	"-g0" "-DNDEBUG" "-Wall"
+        CC-Options:	"-g0" "-DNDEBUG" "-Wall" "-std=c++11"
