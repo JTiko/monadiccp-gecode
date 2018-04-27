@@ -24,13 +24,11 @@ addons:
   apt:
     packages:
       - libgmp-dev
-      - libgecode-dev
 
 before_install:
 # download and build gecode
-# NO: the build takes too long, and is cut off by travis
-# - travis_retry curl -L https://github.com/Gecode/gecode/archive/release-6.0.0.tar.gz | tar xz
-# - cd gecode-release-6.0.0 && ./configure --prefix=/opt/gecode/gecode-6.0.0 && make && make install
+- travis_retry curl -L https://github.com/Gecode/gecode/archive/release-6.0.0.tar.gz | tar xz
+- ( cd gecode-release-6.0.0 && ./configure --prefix=/opt/gecode/gecode-6.0.0 && make && make install )
 # Download and unpack the stack executable
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
