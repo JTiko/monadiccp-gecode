@@ -1,5 +1,5 @@
 Name:                  monadiccp-gecode
-Version:               0.1.1
+Version:               0.1.3
 Description:           Gecode extension for the Monadic Constraint Programming Framework (code generator and runtime solver backend)
 License:               BSD3
 License-file:          LICENSE
@@ -14,12 +14,12 @@ Cabal-Version:         >= 1.8
 Extra-Source-Files:    examples/*.hs lib/*.cpp lib/*.h
 Data-Files:            README.md
 
-tested-with:     
-                 GHC==7.6.3
+tested-with:
+                 GHC==8.4.3
 
 source-repository head
   type: git
-  location: https://github.com/JTiko/monadiccp-gecode.git 
+  location: https://github.com/JTiko/monadiccp-gecode.git
 
 Flag Debug
     Description:       Generate debug output
